@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% block title %}Inicio - CRM Django{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero {
+        text-align: center;
+        padding: 60px 20px;
+    }
+    
+    .hero h1 {
+        font-size: 48px;
+        color: #333;
+        margin-bottom: 20px;
+    }
+    
+    .hero p {
+        font-size: 20px;
+        color: #666;
+        margin-bottom: 40px;
+    }
+    
+    .features {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 30px;
+        margin-top: 50px;
+    }
+    
+    .feature-card {
+        padding: 30px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 10px;
+        text-align: center;
+        color: white;
+        transition: transform 0.3s;
+        text-decoration: none;
+        display: block;
+    }
+    
+    .feature-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .feature-card h3 {
+        font-size: 24px;
+        margin-bottom: 15px;
+    }
+    
+    .feature-card p {
+        color: rgba(255, 255, 255, 0.9);
+    }
+    
+    .cta-button {
+        display: inline-block;
+        padding: 15px 40px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        font-size: 18px;
+        font-weight: bold;
+        transition: transform 0.3s;
+    }
+    
+    .cta-button:hover {
+        transform: scale(1.05);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <h1>Welcome to CRM Django</h1>
+    <p>Manage your leads, contacts and sales efficiently</p>
+    <div style="display: flex; gap: 15px; justify-content: center; margin-top: 30px;">
+        <a href="{% url 'crm:import_csv' %}" class="cta-button" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">📥 Import CSV</a>
+    </div>
+</div>
+
+<div class="features">
+    <a href="{% url 'crm:ai_enrichment' %}" class="feature-card">
+        <h3>🤖 AI Enrichment</h3>
+        <p>Automatically enrich your leads and companies with AI-powered data</p>
+    </a>
+    
+    <div class="feature-card">
+        <h3>📊 Lead Management</h3>
+        <p>Organize and track your prospects effectively</p>
+    </div>
+    
+    <div class="feature-card">
+        <h3>👥 Contacts</h3>
+        <p>Keep all your customer information in one place</p>
+    </div>
+    
+    <div class="feature-card">
+        <h3>📈 Reports</h3>
+        <p>Visualize your team's performance with detailed statistics</p>
+    </div>
+    
+    <div class="feature-card">
+        <h3>🔔 Notifications</h3>
+        <p>Receive alerts about important activities in real time</p>
+    </div>
+</div>
+{% endblock %}

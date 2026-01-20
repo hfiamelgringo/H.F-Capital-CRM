@@ -1,0 +1,216 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} - CRM Django{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .form-header {
+        margin-bottom: 30px;
+    }
+    
+    .form-header h1 {
+        font-size: 28px;
+        color: #333;
+        margin-bottom: 10px;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #333;
+    }
+    
+    .form-input, .form-select {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 14px;
+        transition: border-color 0.3s;
+    }
+    
+    .form-input:focus, .form-select:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .form-checkbox {
+        width: auto;
+        margin-right: 8px;
+    }
+    
+    .checkbox-label {
+        display: flex;
+        align-items: center;
+        font-weight: normal;
+    }
+    
+    .form-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 30px;
+    }
+    
+    .btn {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s;
+        text-decoration: none;
+        display: inline-block;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-secondary {
+        background: #6c757d;
+        color: white;
+    }
+    
+    .btn-secondary:hover {
+        background: #5a6268;
+    }
+    
+    .errorlist {
+        list-style: none;
+        padding: 0;
+        margin: 5px 0 0 0;
+        color: #dc3545;
+        font-size: 14px;
+    }
+    
+    .form-error {
+        border-color: #dc3545 !important;
+    }
+    
+    .help-text {
+        font-size: 13px;
+        color: #6c757d;
+        margin-top: 5px;
+    }
+    
+    .form-row {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-header">
+        <h1>{{ title }}</h1>
+    </div>
+    
+    <form method="post">
+        {% csrf_token %}
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="{{ form.email.id_for_label }}">Email *</label>
+                {{ form.email }}
+                {% if form.email.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.email.errors %}
+                        <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.company.id_for_label }}">Company *</label>
+                {{ form.company }}
+                {% if form.company.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.company.errors %}
+                        <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+                <p class="help-text">If it doesn't exist, <a href="{% url 'leads:company_create' %}" target="_blank">create it here</a></p>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="{{ form.pdl_first_name.id_for_label }}">First Name</label>
+                {{ form.pdl_first_name }}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.pdl_last_name.id_for_label }}">Last Name</label>
+                {{ form.pdl_last_name }}
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ form.pdl_job_title.id_for_label }}">Job Title</label>
+            {{ form.pdl_job_title }}
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="{{ form.lead_score.id_for_label }}">Score (0-100)</label>
+                {{ form.lead_score }}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.lead_stage.id_for_label }}">Lead Stage</label>
+                {{ form.lead_stage }}
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="{{ form.hierarchical_level.id_for_label }}">Hierarchical Level</label>
+                {{ form.hierarchical_level }}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.email_status.id_for_label }}">Email Status</label>
+                {{ form.email_status }}
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ form.crm_owner.id_for_label }}">CRM Owner</label>
+            {{ form.crm_owner }}
+        </div>
+        
+        <div class="form-group">
+            <label class="checkbox-label">
+                {{ form.is_candidate_enterprise }}
+                Enterprise Candidate
+            </label>
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">💾 Save</button>
+            <a href="{% url 'leads:lead_list' %}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
