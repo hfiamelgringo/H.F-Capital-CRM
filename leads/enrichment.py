@@ -8,8 +8,8 @@ import json
 import re
 import os
 from django.utils import timezone
-from ddgs import DDGS
-import google.generativeai as genai
+from duckduckgo_search import DDGS
+from google import genai
 from openai import OpenAI
 from dotenv import load_dotenv
 
@@ -20,14 +20,8 @@ GENAI_API_KEY = os.getenv("GENAI_API_KEY")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 # Initialize clients only if keys are available
-gemini_client = None
-gpt_client = None
-
-if GENAI_API_KEY:
-    genai.configure(api_key=GENAI_API_KEY)
-
-if OPENAI_API_KEY:
-    gpt_client = OpenAI(api_key=OPENAI_API_KEY)
+gemini_client = genai.Client(api_key=GENAI_API_KEY) if GENAI_API_KEY else None
+gpt_client = OpenAI(api_key=OPENAI_API_KEY) if OPENAI_API_KEY else None
 
 
 def collect_candidates(domain: str, search_type="website", max_results: int = 6):
@@ -81,7 +75,7 @@ def collect_candidates(domain: str, search_type="website", max_results: int = 6)
 
 def select_best_with_gemini(domain: str, candidates: list, kind="website"):
     """Gemini selects the best URL from candidates."""
-    if not candidates or not GENAI_API_KEY:
+    if not candidates or not gemini_client:
         return None
 
     company_name = domain.split('.')[0].title()
@@ -98,8 +92,7 @@ Respond with ONLY the URL, nothing else. No explanations, no additional text.
 If none match, respond with the first URL from the list.
 """
     try:
-        model = genai.GenerativeModel('gemini-2.5-flash')
-        response = model.generate_content(prompt)
+        response = gemini_client.models.generate_content(model='gemini-2.5-flash', contents=prompt)
         text = response.text.strip()
         
         # Extract only the URL from the response
@@ -173,7 +166,7 @@ Return ONLY the JSON, no additional text."""
 
 def get_company_info_with_gemini(domain: str, website: str, linkedin: str):
     """Use Gemini to extract company information."""
-    if not GENAI_API_KEY:
+    if not gemini_client:
         return None
         
     company_name = domain.split('.')[0].replace('-', ' ').title()
@@ -203,8 +196,7 @@ Return ONLY a JSON object with this exact structure (use null for unknown fields
 Return ONLY the JSON, no additional text."""
 
     try:
-        model = genai.GenerativeModel('gemini-2.5-flash')
-        response = model.generate_content(prompt)
+        response = gemini_client.models.generate_content(model='gemini-2.5-flash', contents=prompt)
         response_text = response.text.strip()
         
         # Remove markdown if present
@@ -377,7 +369,7 @@ Instructions:
 
 def get_lead_info_with_gemini(email: str, search_results: list, linkedin_url: str = None):
     """Use Gemini to extract lead information from search results."""
-    if not GENAI_API_KEY or not search_results:
+    if not gemini_client or not search_results:
         return None
 
     context = ""
@@ -405,8 +397,7 @@ Return ONLY the JSON, no additional text.
 """
 
     try:
-        model = genai.GenerativeModel('gemini-2.5-flash')
-        response = model.generate_content(prompt)
+        response = gemini_client.models.generate_content(model='gemini-2.5-flash', contents=prompt)
         response_text = response.text.strip()
 
         if response_text.startswith("```"):

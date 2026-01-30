@@ -18,7 +18,7 @@ import time
 from pathlib import Path
 from click import prompt
 import pandas as pd
-from ddgs import DDGS
+from duckduckgo_search import DDGS
 from google import genai
 from openai import OpenAI
 from dotenv import load_dotenv
