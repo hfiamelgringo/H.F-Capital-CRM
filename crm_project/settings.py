@@ -10,10 +10,17 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# When served under a subpath (e.g. nginx /dashboard/) set FORCE_SCRIPT_NAME
+SCRIPT_NAME = os.environ.get("DJANGO_SCRIPT_NAME", "")
+if SCRIPT_NAME:
+    FORCE_SCRIPT_NAME = SCRIPT_NAME.rstrip("/")
+    STATIC_URL = f"{FORCE_SCRIPT_NAME}/static/"
 
 
 # Quick-start development settings - unsuitable for production
@@ -23,10 +30,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-r*3twr8uzps1qbbhkjva7ml7wtn&#g_&l)y$v0dp((w0t*-t=^'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# DEBUG=True on dev (DJANGO_PRODUCTION unset or "False"). start.ps1 sets DJANGO_PRODUCTION="True" on the server so DEBUG=False. To debug on server, comment that out in start.ps1 (see DEPLOY.md).
+DEBUG = os.environ.get("DJANGO_PRODUCTION", "").strip().lower() != "true"
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['hf.capital', 'localhost', '127.0.0.1']
 
+# Behind nginx HTTPS proxy
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Application definition
 
@@ -120,9 +130,30 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
+if not SCRIPT_NAME:
+    STATIC_URL = "static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Log 500 errors to file when DEBUG=False
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'ERROR',
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR / 'django_error.log',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'ERROR',
+        },
+    },
+}
