@@ -12,4 +12,7 @@ urlpatterns = [
     path('<str:pk>/edit/', views.company_update, name='company_update'),
     path('<str:pk>/delete/', views.company_delete, name='company_delete'),
     path('<str:pk>/view/', views.company_detail, name='company_detail'),
+    path('<str:pk>/notes/', views.company_notes, name='company_notes'),
+    path('<str:pk>/notes/<int:note_id>/edit/', views.company_note_update, name='company_note_update'),
+    path('<str:pk>/notes/<int:note_id>/delete/', views.company_note_delete, name='company_note_delete'),
 ]

@@ -87,6 +87,7 @@
 
 <div class="ui segment">
     <a href="{% url 'companies:company_list' %}" class="ui button">Back to List</a>
+    <a href="{% url 'companies:company_notes' company.domain %}" class="ui button">Notes</a>
     <a href="{% url 'companies:company_update' company.domain %}" class="ui primary button">Edit Company</a>
     <a href="{% url 'companies:company_delete' company.domain %}" class="ui red button">Delete Company</a>
 </div>

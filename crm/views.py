@@ -18,6 +18,10 @@ def home(request):
     return render(request, 'crm/home.html')
 
 
+def changelog(request):
+    return render(request, 'crm/changelog.html')
+
+
 def ai_enrichment(request):
     """Simplified AI enrichment view for companies and leads."""
     enrichment_enabled = bool(os.getenv("GENAI_API_KEY") and os.getenv("OPENAI_API_KEY"))
@@ -49,7 +53,6 @@ def ai_enrichment(request):
             enriched = 0
             errors = 0
 
-            # Enrich companies in parallel (5 workers)
             def _enrich_one(company):
                 try:
                     enriched_data = enrich_company(company.domain, verbose=False)
@@ -74,13 +77,52 @@ def ai_enrichment(request):
                         if result.get('success'):
                             enriched += 1
                         else:
-                            # treat missing data as not-enriched
                             if result.get('error'):
                                 errors += 1
                     except Exception:
                         errors += 1
 
             messages.success(request, f'AI-enriched {enriched} companies. {errors} errors.')
+            return redirect('crm:ai_enrichment')
+
+        if 're_enrich_companies' in request.POST:
+            if not enrichment_enabled:
+                messages.error(request, 'AI enrichment is disabled. Add GENAI_API_KEY and OPENAI_API_KEY to keys.env to enable.')
+                return redirect('crm:ai_enrichment')
+
+            enriched = 0
+            errors = 0
+            all_companies = Company.objects.exclude(domain__in=['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com', 'aol.com'])
+            def _enrich_one_all(company):
+                try:
+                    enriched_data = enrich_company(company.domain, verbose=False)
+                    if enriched_data:
+                        if enriched_data.get('work_website') and not company.work_website:
+                            company.work_website = enriched_data['work_website']
+                        if enriched_data.get('company_name') and not company.company_name:
+                            company.company_name = enriched_data['company_name']
+                        if enriched_data.get('linkedin') and not company.linkedin:
+                            company.linkedin = enriched_data['linkedin']
+                        company.save()
+                        return {'success': True, 'company': company}
+                    return {'success': False, 'company': company}
+                except Exception as e:
+                    return {'success': False, 'company': company, 'error': str(e)}
+
+            with ThreadPoolExecutor(max_workers=5) as executor:
+                future_to_company = {executor.submit(_enrich_one_all, c): c for c in all_companies}
+                for future in as_completed(future_to_company):
+                    try:
+                        result = future.result()
+                        if result.get('success'):
+                            enriched += 1
+                        else:
+                            if result.get('error'):
+                                errors += 1
+                    except Exception:
+                        errors += 1
+
+            messages.success(request, f'Re-enriched {enriched} companies (only empty fields). {errors} errors.')
             return redirect('crm:ai_enrichment')
 
         if 'enrich_leads' in request.POST:
@@ -101,6 +143,27 @@ def ai_enrichment(request):
                     errors += 1
 
             messages.success(request, f'AI-enriched {enriched} leads. {errors} errors.')
+            return redirect('crm:ai_enrichment')
+
+        if 're_enrich_leads' in request.POST:
+            if not enrichment_enabled:
+                messages.error(request, 'AI enrichment is disabled. Add GENAI_API_KEY and OPENAI_API_KEY to keys.env to enable.')
+                return redirect('crm:ai_enrichment')
+
+            enriched = 0
+            errors = 0
+            all_leads = Lead.objects.all()
+            for lead in all_leads:
+                try:
+                    result = enrich_lead(lead, verbose=False, overwrite=False)
+                    if result and not result.get('skipped'):
+                        enriched += 1
+                    elif result is None:
+                        errors += 1
+                except Exception:
+                    errors += 1
+
+            messages.success(request, f'Re-enriched {enriched} leads (only empty fields). {errors} errors.')
             return redirect('crm:ai_enrichment')
 
     return render(request, 'crm/ai_enrichment.html', {

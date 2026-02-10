@@ -4,10 +4,51 @@
 
 Version | Date       | Author         | Description
 ------------------------------------------------------------
-0.2.0   | 2026-01-28 | Catriel Kahla  | Non-stable release
+0.3.0   | 2026-02-10 | Catriel Kahla  | Non-stable release
+0.2.0   | 2026-01-29 | Catriel Kahla  | Non-stable release
 0.1.0   | 2026-01-19 | Catriel Kahla  | Initial non-stable release
 
 ---
+## Version 0.3.0 – Non-stable
+
+### Lead Tag System (Email Tagging)
+- Added a structured tag system for **leads (emails)**.
+- New DB model: `LeadTag` + a `Lead.tags` Many-to-Many relationship.
+- Tags are shown on `/leads` and can be used for bulk actions.
+
+### Bulk Actions in `/leads`
+- Select multiple leads via checkboxes.
+- **Apply tag to selected**: type a tag name (ex: `enterprise`, `webinar-2026`) and apply it to the selected emails.
+- **Send selected to Mailchimp**: sends selected emails; existing CRM tags are also pushed as **Mailchimp audience tags**.
+- **Send all leads with tag to Mailchimp**: pick a tag and send all leads that have that tag.
+
+### Search by Tags
+- The search input in `/leads` now matches tag names too (in addition to name/email/company).
+
+### Mailchimp Notes
+- Mailchimp integration uses the environment variables:
+  - `MAILCHIMP_API_KEY`
+  - `MAILCHIMP_SERVER_PREFIX`
+  - `MAILCHIMP_AUDIENCE_ID`
+- Members are **upserted** (won't fail if already exists) and tags are applied via Mailchimp's member tags endpoint.
+
+### UI/UX Improvements
+- The Actions column now uses compact icon-only buttons for view, edit, and delete.
+- Leads Stage column; new style at labels.
+- A new "Name" column has been added to the leads list, displaying the lead's name and last name together.
+
+### Company Notes System
+- Added a per-company notes system to track explanations and workflow history.
+- Route: `/companies/<domain>/notes/` (domain matches the existing company URL identifier).
+- Full CRUD:
+  - List + add note on the notes page
+  - Edit: `/companies/<domain>/notes/<note_id>/edit/`
+  - Delete: `/companies/<domain>/notes/<note_id>/delete/`
+- New DB model: `CompanyNote` (FK to `Company`, `body`, `created_at`, `updated_at`).
+- Django admin: `CompanyNote` is registered for browsing/search.
+- Tests: `companies` app includes coverage for create/edit/delete and cross-company access protection.
+
+------------------------------------------------------------
 
 ## Version 0.2.0 – Non-stable
 

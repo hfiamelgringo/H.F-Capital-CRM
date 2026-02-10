@@ -28,6 +28,12 @@
             Start Company Enrichment
         </button>
     </form>
+    <form method="post" style="display: inline;" onsubmit="return confirm('Re-enrich all companies? Only empty fields will be filled. This will not overwrite existing data. Continue?');">
+        {% csrf_token %}
+        <button type="submit" name="re_enrich_companies" class="ui orange button" {% if not enrichment_enabled %}disabled{% endif %}>
+            Re-enrich All Companies
+        </button>
+    </form>
     {% if enrichment_enabled and companies_count > 0 %}
         <a href="{% url 'crm:ai_enrichment_stream' %}" target="_blank" class="ui button">Live progress</a>
     {% endif %}
@@ -44,6 +50,12 @@
         {% csrf_token %}
         <button type="submit" name="enrich_leads" class="ui primary button" {% if not enrichment_enabled or leads_count == 0 %}disabled{% endif %}>
             Start Lead Enrichment
+        </button>
+    </form>
+    <form method="post" style="display: inline;" onsubmit="return confirm('Re-enrich all leads? Only empty fields will be filled. This will not overwrite existing data. Continue?');">
+        {% csrf_token %}
+        <button type="submit" name="re_enrich_leads" class="ui orange button" {% if not enrichment_enabled %}disabled{% endif %}>
+            Re-enrich All Leads
         </button>
     </form>
 </div>

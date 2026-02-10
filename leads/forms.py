@@ -1,5 +1,5 @@
 from django import forms
-from .models import Lead, Company
+from .models import Lead, Company, CompanyNote
 
 
 class CompanyForm(forms.ModelForm):
@@ -71,3 +71,16 @@ class LeadForm(forms.ModelForm):
                 'class': 'form-input',
                 'style': 'background-color: #f5f5f5; cursor: not-allowed;'
             })
+
+
+class CompanyNoteForm(forms.ModelForm):
+    class Meta:
+        model = CompanyNote
+        fields = ['body']
+        widgets = {
+            'body': forms.Textarea(attrs={
+                'class': 'form-input',
+                'placeholder': 'Write a note about what you did, why, and next steps...',
+                'rows': 6,
+            }),
+        }

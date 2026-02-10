@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title %}Notes - {{ company.company_name|default:company.domain }}{% endblock %}
+
+{% block extra_css %}{% endblock %}
+
+{% block content %}
+{% if messages %}
+<div class="ui messages">
+    {% for message in messages %}
+        <div class="ui {{ message.tags|default:'success' }} message">
+            {{ message }}
+        </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="ui segment">
+    <h2 class="ui header">Company Notes</h2>
+    <div class="sub header">{{ company.company_name|default:company.domain }} ({{ company.domain }})</div>
+</div>
+
+<div class="ui segment">
+    <h3 class="ui header">Add a note</h3>
+    <form method="post" class="ui form">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="ui primary button">Add Note</button>
+        <a href="{% url 'companies:company_detail' company.domain %}" class="ui button">Back to Company</a>
+    </form>
+</div>
+
+<div class="ui segment">
+    <h3 class="ui header">Notes</h3>
+
+    {% if notes %}
+        <div class="ui relaxed divided list">
+            {% for note in notes %}
+            <div class="item">
+                <div class="content">
+                    <div class="header">
+                        {{ note.created_at|date:"d/m/Y H:i" }}
+                    </div>
+                    <div class="description" style="margin-top: 0.5em;">
+                        {{ note.body|linebreaksbr }}
+                    </div>
+                    <div style="margin-top: 0.75em;">
+                        <a href="{% url 'companies:company_note_update' company.domain note.id %}" class="ui small button">Edit</a>
+                        <a href="{% url 'companies:company_note_delete' company.domain note.id %}" class="ui small red basic button">Delete</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="ui message">No notes yet.</div>
+    {% endif %}
+</div>
+{% endblock %}

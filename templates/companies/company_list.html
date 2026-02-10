@@ -83,10 +83,10 @@
                 </td>
                 <td>{{ company.lead_set.count }}</td>
                 <td>
-                    <div class="ui small buttons">
-                        <a href="{% url 'companies:company_detail' company.domain %}" class="ui button">View</a>
-                        <a href="{% url 'companies:company_update' company.domain %}" class="ui button">Edit</a>
-                        <a href="{% url 'companies:company_delete' company.domain %}" class="ui red button">Delete</a>
+                    <div class="ui small icon buttons">
+                        <a href="{% url 'companies:company_detail' company.domain %}" class="ui primary basic button" title="View"><i class="eye icon"></i></a>
+                        <a href="{% url 'companies:company_update' company.domain %}" class="ui positive basic button" title="Edit"><i class="edit icon"></i></a>
+                        <a href="{% url 'companies:company_delete' company.domain %}" class="ui negative basic button" title="Delete"><i class="trash alternate outline icon"></i></a>
                     </div>
                 </td>
             </tr>

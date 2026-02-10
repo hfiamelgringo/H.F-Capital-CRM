@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Note - {{ company.company_name|default:company.domain }}{% endblock %}
+
+{% block extra_css %}{% endblock %}
+
+{% block content %}
+<div class="ui segment">
+    <div class="ui negative message">
+        <div class="header">Delete note?</div>
+        <p>This action cannot be undone.</p>
+    </div>
+
+    <table class="ui definition table">
+        <tbody>
+            <tr><td>Company</td><td>{{ company.company_name|default:company.domain }}</td></tr>
+            <tr><td>Domain</td><td>{{ company.domain }}</td></tr>
+            <tr><td>Created</td><td>{{ note.created_at|date:"d/m/Y H:i" }}</td></tr>
+            <tr><td>Note</td><td>{{ note.body|linebreaksbr }}</td></tr>
+        </tbody>
+    </table>
+
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="ui red button">Delete Note</button>
+        <a href="{% url 'companies:company_notes' company.domain %}" class="ui button">Cancel</a>
+    </form>
+</div>
+{% endblock %}
