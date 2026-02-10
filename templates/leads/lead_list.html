@@ -37,7 +37,7 @@
     <form method="get" action="{% url 'leads:lead_list' %}" class="ui form" style="margin: 0;">
         <div class="field">
             <div class="ui action input fluid">
-                <input type="text" name="search" value="{{ search_query }}" placeholder="Search leads by name, email, or company...">
+                <input type="text" name="search" value="{{ search_query }}" placeholder="Search leads by name, email, company, or tag...">
                 <button type="submit" class="ui button">Search</button>
                 {% if search_query %}
                 <a href="{% url 'leads:lead_list' %}" class="ui button">Clear</a>
@@ -64,58 +64,111 @@
 
 {% if leads %}
 <div class="ui segment" style="padding: 0;">
-    <table class="ui celled striped table" style="margin: 0;">
-        <thead>
-            <tr>
-                <th>Email</th>
-                <th>Company</th>
-                <th>Score</th>
-                <th>Stage</th>
-                <th>Status</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for lead in leads %}
-            <tr>
-                <td>{{ lead.email }}</td>
-                <td>{{ lead.company.company_name|default:lead.company.domain }}</td>
-                <td><strong>{{ lead.lead_score }}</strong></td>
-                <td>
-                    {% if lead.lead_stage %}
-                        {% if lead.lead_stage == 'low' %}
-                            <span class="ui teal label">{{ lead.get_lead_stage_display }}</span>
-                        {% elif lead.lead_stage == 'medium' %}
-                            <span class="ui yellow label">{{ lead.get_lead_stage_display }}</span>
-                        {% elif lead.lead_stage == 'high' %}
-                            <span class="ui orange label">{{ lead.get_lead_stage_display }}</span>
-                        {% elif lead.lead_stage == 'very_high' %}
-                            <span class="ui red label">{{ lead.get_lead_stage_display }}</span>
-                        {% else %}
-                            <span class="ui green label">{{ lead.get_lead_stage_display }}</span>
-                        {% endif %}
-                    {% else %}-{% endif %}
-                </td>
-                <td>
-                    {% if lead.email_status == 'active' %}
-                        <span class="ui green label">{{ lead.get_email_status_display }}</span>
-                    {% elif lead.email_status == 'bounced' %}
-                        <span class="ui red label">{{ lead.get_email_status_display }}</span>
-                    {% else %}
-                        <span class="ui grey label">{{ lead.get_email_status_display }}</span>
-                    {% endif %}
-                </td>
-                <td>
-                    <div class="ui small buttons">
-                        <a href="{% url 'leads:lead_detail' lead.email %}" class="ui button">View</a>
-                        <a href="{% url 'leads:lead_update' lead.email %}" class="ui button">Edit</a>
-                        <a href="{% url 'leads:lead_delete' lead.email %}" class="ui red button">Delete</a>
-                    </div>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div style="padding: 1em;">
+        <form method="post" action="{% url 'leads:send_to_mailchimp' %}" class="ui form">
+            {% csrf_token %}
+
+            <div class="fields">
+                <div class="ten wide field">
+                    <label>Tag selected leads</label>
+                    <input type="text" name="tag_name" placeholder="e.g. webinar-2026, enterprise, nurture" />
+                </div>
+                <div class="six wide field" style="display: flex; align-items: flex-end; gap: 0.5em;">
+                    <button type="submit" class="ui blue button">
+                        Send selected to Mailchimp
+                    </button>
+                    <button type="submit" class="ui teal button" formaction="{% url 'leads:bulk_apply_tag' %}">
+                        Apply tag to selected
+                    </button>
+                </div>
+            </div>
+
+            <table class="ui celled striped table" style="margin: 0;">
+                <thead>
+                    <tr>
+                        <th><input type="checkbox" id="select-all"></th>
+                        <th>Email</th>
+                        <th>Name</th>
+                        <th>Company</th>
+                        <th>Score</th>
+                        <th>Stage</th>
+                        <th>Status</th>
+                        <th>Tags</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for lead in leads %}
+                    <tr>
+                        <td><input type="checkbox" class="lead-checkbox" name="selected_leads" value="{{ lead.pk }}"></td>
+                        <td>{{ lead.email }}</td>
+                        <td>{{ lead.pdl_first_name }} {{ lead.pdl_last_name }}</td>
+                        <td>{{ lead.company.company_name|default:lead.company.domain }}</td>
+                        <td><strong>{{ lead.lead_score }}</strong></td>
+                        <td>
+                            {% if lead.lead_stage %}
+                                {% if lead.lead_stage == 'low' %}
+                                    <span class="ui grey basic label">{{ lead.get_lead_stage_display }}</span>
+                                {% elif lead.lead_stage == 'medium' %}
+                                    <span class="ui secondary basic label">{{ lead.get_lead_stage_display }}</span>
+                                {% elif lead.lead_stage == 'high' %}
+                                    <span class="ui pink basic label">{{ lead.get_lead_stage_display }}</span>
+                                {% elif lead.lead_stage == 'very_high' %}
+                                    <span class="ui teal basic label">{{ lead.get_lead_stage_display }}</span>
+                                {% else %}
+                                    <span class="ui green basic label">{{ lead.get_lead_stage_display }}</span>
+                                {% endif %}
+                            {% else %}-{% endif %}
+                        </td>
+                        <td>
+                            {% if lead.email_status == 'active' %}
+                                <span class="ui green label">{{ lead.get_email_status_display }}</span>
+                            {% elif lead.email_status == 'bounced' %}
+                                <span class="ui red label">{{ lead.get_email_status_display }}</span>
+                            {% else %}
+                                <span class="ui grey label">{{ lead.get_email_status_display }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% for t in lead.tags.all %}
+                                <span class="ui tiny basic label">{{ t.name }}</span>
+                            {% empty %}
+                                -
+                            {% endfor %}
+                        </td>
+                        <td>
+                            <div class="ui small icon buttons">
+                                <a href="{% url 'leads:lead_detail' lead.email %}" class="ui primary basic button" title="View"><i class="eye icon"></i></a>
+                                <a href="{% url 'leads:lead_update' lead.email %}" class="ui positive basic button" title="Edit"><i class="edit icon"></i></a>
+                                <a href="{% url 'leads:lead_delete' lead.email %}" class="ui negative basic button" title="Delete"><i class="trash alternate outline icon"></i></a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </form>
+
+        <div class="ui divider"></div>
+
+        <form method="post" action="{% url 'leads:send_tag_to_mailchimp' %}" class="ui form">
+            {% csrf_token %}
+            <div class="fields">
+                <div class="ten wide field">
+                    <label>Send all leads with tag to Mailchimp</label>
+                    <select name="tag_id" class="ui dropdown">
+                        <option value="">-- choose tag --</option>
+                        {% for t in all_tags %}
+                            <option value="{{ t.id }}">{{ t.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="six wide field" style="display: flex; align-items: flex-end;">
+                    <button type="submit" class="ui blue button">Send tagged leads to Mailchimp</button>
+                </div>
+            </div>
+        </form>
+    </div>
 </div>
 {% else %}
 <div class="ui placeholder segment">
@@ -147,5 +200,16 @@
     function runLeadEnrichment(mode) {
         window.location.href = "{% url 'leads:lead_enrich' %}?mode=" + mode;
     }
+
+    (function () {
+        var selectAll = document.getElementById('select-all');
+        if (!selectAll) return;
+        selectAll.addEventListener('change', function (e) {
+            var checked = e.target.checked;
+            document.querySelectorAll('.lead-checkbox').forEach(function (cb) {
+                cb.checked = checked;
+            });
+        });
+    })();
 </script>
 {% endblock %}

@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} - {{ company.company_name|default:company.domain }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .ui.form p { margin-bottom: 1em; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="ui segment">
+    <h2 class="ui header">{{ title }}</h2>
+    <div class="sub header">{{ company.company_name|default:company.domain }} ({{ company.domain }})</div>
+
+    <div class="ui divider"></div>
+
+    <form method="post" class="ui form">
+        {% csrf_token %}
+        {{ form.as_p }}
+
+        <div class="ui divider"></div>
+        <button type="submit" class="ui primary button">Save Note</button>
+        <a href="{% url 'companies:company_notes' company.domain %}" class="ui button">Cancel</a>
+    </form>
+</div>
+{% endblock %}

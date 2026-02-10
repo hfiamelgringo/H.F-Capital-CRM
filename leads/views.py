@@ -1,7 +1,8 @@
+from .mailchimp_utils import add_lead_to_mailchimp
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.db.models import Q, Avg
-from .models import Lead, Company
+from .models import Lead, Company, LeadTag
 from .forms import LeadForm, CompanyForm
 from .enrichment import enrich_lead
 import os
@@ -9,22 +10,19 @@ import os
 
 def lead_list(request):
     """View to list all leads"""
-    leads = Lead.objects.select_related('company').all()
+    leads = Lead.objects.select_related('company').prefetch_related('tags').all()
     search_query = request.GET.get('search', '').strip()
     
     # Filter by search query if provided
     if search_query:
         leads = leads.filter(
-            pdl_first_name__icontains=search_query
-        ) | leads.filter(
-            pdl_last_name__icontains=search_query
-        ) | leads.filter(
-            email__icontains=search_query
-        ) | leads.filter(
-            company__company_name__icontains=search_query
-        ) | leads.filter(
-            company__domain__icontains=search_query
-        )
+            Q(pdl_first_name__icontains=search_query)
+            | Q(pdl_last_name__icontains=search_query)
+            | Q(email__icontains=search_query)
+            | Q(company__company_name__icontains=search_query)
+            | Q(company__domain__icontains=search_query)
+            | Q(tags__name__icontains=search_query)
+        ).distinct()
     
     avg_score = leads.aggregate(avg=Avg('lead_score'))['avg']
     if avg_score is not None:
@@ -32,8 +30,11 @@ def lead_list(request):
     else:
         avg_score = '--'
     
+    all_tags = LeadTag.objects.all().order_by('name')
+
     return render(request, 'leads/lead_list.html', {
         'leads': leads,
+        'all_tags': all_tags,
         'search_query': search_query,
         'avg_score': avg_score,
     })
@@ -56,6 +57,102 @@ def lead_create(request):
     else:
         form = LeadForm()
     return render(request, 'leads/lead_form.html', {'form': form, 'title': 'Create Lead'})
+
+
+from django.views.decorators.csrf import csrf_exempt
+from django.http import HttpResponseRedirect
+def send_to_mailchimp(request):
+    if request.method == 'POST':
+        selected_ids = request.POST.getlist('selected_leads')
+        if not selected_ids:
+            messages.error(request, 'No leads selected.')
+            return redirect('leads:lead_list')
+        from .models import Lead
+        leads = Lead.objects.filter(pk__in=selected_ids)
+        success, failed = 0, 0
+        for lead in leads:
+            # Push any existing CRM tags as Mailchimp audience tags too
+            tag_names = list(lead.tags.values_list('name', flat=True))
+            result = add_lead_to_mailchimp(
+                lead.email,
+                getattr(lead, 'pdl_first_name', ''),
+                getattr(lead, 'pdl_last_name', ''),
+                tag_names=tag_names,
+            )
+            if 'error' in result:
+                failed += 1
+            else:
+                success += 1
+        if success:
+            messages.success(request, f'{success} leads sent to Mailchimp.')
+        if failed:
+            messages.error(request, f'{failed} leads failed to send.')
+        return redirect('leads:lead_list')
+    return redirect('leads:lead_list')
+
+
+def bulk_apply_tag(request):
+    if request.method != 'POST':
+        return redirect('leads:lead_list')
+
+    selected_ids = request.POST.getlist('selected_leads')
+    tag_name = (request.POST.get('tag_name') or '').strip()
+
+    if not selected_ids:
+        messages.error(request, 'No leads selected.')
+        return redirect('leads:lead_list')
+
+    if not tag_name:
+        messages.error(request, 'Tag name is required.')
+        return redirect('leads:lead_list')
+
+    tag, _ = LeadTag.objects.get_or_create(name=tag_name.strip().lower())
+    leads = Lead.objects.filter(pk__in=selected_ids)
+
+    updated = 0
+    for lead in leads:
+        lead.tags.add(tag)
+        updated += 1
+
+    messages.success(request, f'Applied tag "{tag.name}" to {updated} lead(s).')
+    return redirect('leads:lead_list')
+
+
+def send_tag_to_mailchimp(request):
+    if request.method != 'POST':
+        return redirect('leads:lead_list')
+
+    tag_id = request.POST.get('tag_id')
+    if not tag_id:
+        messages.error(request, 'Please choose a tag.')
+        return redirect('leads:lead_list')
+
+    tag = get_object_or_404(LeadTag, pk=tag_id)
+    leads = Lead.objects.filter(tags=tag)
+
+    if not leads.exists():
+        messages.info(request, f'No leads found with tag "{tag.name}".')
+        return redirect('leads:lead_list')
+
+    success, failed = 0, 0
+    for lead in leads:
+        result = add_lead_to_mailchimp(
+            lead.email,
+            getattr(lead, 'pdl_first_name', ''),
+            getattr(lead, 'pdl_last_name', ''),
+            tag_names=[tag.name],
+        )
+        if 'error' in result:
+            failed += 1
+        else:
+            success += 1
+
+    if success:
+        messages.success(request, f'{success} tagged lead(s) sent to Mailchimp (tag: {tag.name}).')
+    if failed:
+        messages.error(request, f'{failed} tagged lead(s) failed to send to Mailchimp.')
+
+    return redirect('leads:lead_list')
 
 
 def lead_update(request, pk):

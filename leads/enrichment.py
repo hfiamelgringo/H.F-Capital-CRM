@@ -508,6 +508,30 @@ def enrich_lead(lead, verbose=False, overwrite=False):
             lead.pdl_linkedin_url = ai_data["linkedin_url"]
             updated = True
 
+        # Try to fill session_count, first_seen, last_active, last_contacted_date if missing
+        # Only update if not present (or overwrite=True)
+        if (overwrite or lead.session_count is None) and ai_data.get("session_count"):
+            lead.session_count = ai_data["session_count"]
+            updated = True
+        if (overwrite or not lead.first_seen) and ai_data.get("first_seen"):
+            try:
+                lead.first_seen = timezone.make_aware(timezone.datetime.fromisoformat(ai_data["first_seen"]))
+                updated = True
+            except Exception:
+                pass
+        if (overwrite or not lead.last_active) and ai_data.get("last_active"):
+            try:
+                lead.last_active = timezone.make_aware(timezone.datetime.fromisoformat(ai_data["last_active"]))
+                updated = True
+            except Exception:
+                pass
+        if (overwrite or not lead.last_contacted_date) and ai_data.get("last_contacted_date"):
+            try:
+                lead.last_contacted_date = timezone.make_aware(timezone.datetime.fromisoformat(ai_data["last_contacted_date"]))
+                updated = True
+            except Exception:
+                pass
+
         if updated:
             lead.pdl_job_last_verified = timezone.now()
             lead.save()

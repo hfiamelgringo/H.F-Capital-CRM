@@ -3,6 +3,27 @@ from django.utils import timezone
 from .scoring import auto_calculate_score_and_stage
 
 
+class LeadTag(models.Model):
+    """Tag model for categorizing leads (emails) for bulk actions."""
+
+    name = models.CharField(max_length=64, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'lead_tags'
+        verbose_name = 'Lead Tag'
+        verbose_name_plural = 'Lead Tags'
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        if self.name:
+            self.name = self.name.strip().lower()
+        super().save(*args, **kwargs)
+
+
 class Company(models.Model):
     """Company model - one per domain."""
 
@@ -68,6 +89,31 @@ class Company(models.Model):
 
     def __repr__(self):
         return f"<Company(domain={self.domain!r}, company_name={self.company_name!r})>"
+
+
+class CompanyNote(models.Model):
+    company = models.ForeignKey(
+        Company,
+        on_delete=models.CASCADE,
+        to_field='domain',
+        db_column='domain',
+        related_name='notes',
+    )
+    body = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'company_notes'
+        verbose_name = 'Company Note'
+        verbose_name_plural = 'Company Notes'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        prefix = (self.body or '').strip().replace('\n', ' ')
+        if len(prefix) > 60:
+            prefix = prefix[:57] + '...'
+        return f"{self.company_id}: {prefix}" if prefix else f"{self.company_id}: (empty)"
 
 
 class Lead(models.Model):
@@ -139,6 +185,12 @@ class Lead(models.Model):
     pdl_job_title = models.CharField(max_length=255, blank=True, null=True)
     pdl_linkedin_url = models.CharField(max_length=255, blank=True, null=True)
     pdl_job_last_verified = models.DateTimeField(blank=True, null=True)
+
+    tags = models.ManyToManyField(
+        LeadTag,
+        blank=True,
+        related_name='leads',
+    )
     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

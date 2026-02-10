@@ -4,15 +4,57 @@
 <div class="ui segment">
     <h2 class="ui header"><i class="history icon"></i> Changelog</h2>
     <div class="ui relaxed divided list">
-        {% for entry in changelog_entries %}
+
         <div class="item">
             <i class="calendar icon"></i>
             <div class="content">
-                <div class="header">{{ entry.date }}</div>
-                <div class="description">{{ entry.content|safe }}</div>
+                <div class="header">2026-02-10</div>
+                <div class="description">
+                    <b>Version 0.3.0 - Non-stable</b><br>
+                    <ul>
+                        <li>Lead Tag System: Added structured tags for leads (emails) with a new <code>LeadTag</code> model and <code>Lead.tags</code> Many-to-Many.</li>
+                        <li>Bulk actions in <code>/leads</code>: select emails, apply a tag to selected leads, and send selected leads to Mailchimp.</li>
+                        <li>Send by tag: send all leads with a chosen tag to Mailchimp for common campaign actions.</li>
+                        <li>Search by tags: lead search now matches tag names too.</li>
+                        <li>Mailchimp sync: members are upserted and CRM tags are pushed as Mailchimp audience tags.</li>
+                        <li>UI/UX Improvements: Compact icon-only action buttons; improved Lead Stage labels; added a Name column to the leads list.</li>
+                        <li>Company Notes System: Added per-company notes at <code>/companies/&lt;domain&gt;/notes/</code> with full CRUD (add/edit/delete), a new <code>CompanyNote</code> model (timestamps), admin registration, and tests.</li>
+                    </ul>
+                </div>
             </div>
         </div>
-        {% endfor %}
+
+        <div class="item">
+            <i class="calendar icon"></i>
+            <div class="content">
+                <div class="header">2026-01-28</div>
+                <div class="description">
+                    <b>Version 0.2.0 – Non-stable</b><br>
+                    <ul>
+                        <li>UI/UX improvements.</li>
+                        <li>Search & Filtering: Company and lead search, filter by name, domain or email.</li>
+                        <li>AI Lead Enrichment: AI enrichment during CSV upload, real-time progress, job title/LinkedIn extraction.</li>
+                        <li>Automated Lead Scoring: Multi-signal algorithm (session count, adoption, job title, domain, etc.), auto-calculated on save, read-only in UI, management command for bulk updates.</li>
+                        <li>Bug Fixes: CSV import button, new lead button, Gemini AI model update, cancel button, search UX, clickable links, non-editable score/stage.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="item">
+            <i class="calendar icon"></i>
+            <div class="content">
+                <div class="header">2026-01-19</div>
+                <div class="description">
+                    <b>Version 0.1.0 – Non-stable</b><br>
+                    <ul>
+                        <li>Initial Django CRM foundation with AI-powered enrichment (DuckDuckGo, Gemini, OpenAI).</li>
+                        <li>Comprehensive models for leads and companies, with enrichment and scoring fields.</li>
+                        <li>Bulk CSV import, CRUD for leads/companies, admin customizations, template system, and utility scripts.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}

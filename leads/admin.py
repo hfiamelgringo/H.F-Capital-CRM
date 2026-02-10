@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.shortcuts import render
 from django.utils.html import format_html
-from .models import Lead, Company
+from .models import Lead, Company, CompanyNote, LeadTag
 
 
 @admin.register(Company)
@@ -71,16 +71,22 @@ class CompanyAdmin(admin.ModelAdmin):
 
 @admin.register(Lead)
 class LeadAdmin(admin.ModelAdmin):
-    list_display = ['email', 'get_full_name', 'company', 'lead_score', 'lead_stage', 'email_status', 'created_at']
+    list_display = ['email', 'get_full_name', 'company', 'lead_score', 'lead_stage', 'email_status', 'created_at', 'get_tags']
     list_filter = ['lead_stage', 'hierarchical_level', 'email_status', 'is_candidate_enterprise']
     search_fields = ['email', 'pdl_first_name', 'pdl_last_name', 'pdl_job_title', 'company__company_name']
     readonly_fields = ['created_at', 'updated_at']
     list_editable = ['lead_score', 'lead_stage']
     actions = ['view_details']
+
+    filter_horizontal = ['tags']
     
     def get_full_name(self, obj):
         return f"{obj.pdl_first_name or ''} {obj.pdl_last_name or ''}".strip() or '-'
     get_full_name.short_description = 'Name'
+
+    def get_tags(self, obj):
+        return ", ".join(t.name for t in obj.tags.all()[:10])
+    get_tags.short_description = 'Tags'
     
     @admin.action(description='Ver detalles completos')
     def view_details(self, request, queryset):
@@ -132,3 +138,25 @@ class LeadAdmin(admin.ModelAdmin):
         else:
             self.message_user(request, 'Por favor selecciona solo un elemento para ver sus detalles.', level='warning')
             return None
+
+
+@admin.register(CompanyNote)
+class CompanyNoteAdmin(admin.ModelAdmin):
+    list_display = ['company', 'created_at', 'updated_at', 'short_body']
+    list_filter = ['created_at']
+    search_fields = ['company__domain', 'company__company_name', 'body']
+    readonly_fields = ['created_at', 'updated_at']
+
+    def short_body(self, obj):
+        text = (obj.body or '').strip().replace('\n', ' ')
+        if len(text) > 80:
+            return text[:77] + '...'
+        return text
+    short_body.short_description = 'Note'
+
+
+@admin.register(LeadTag)
+class LeadTagAdmin(admin.ModelAdmin):
+    list_display = ['name', 'created_at']
+    search_fields = ['name']
+    readonly_fields = ['created_at']

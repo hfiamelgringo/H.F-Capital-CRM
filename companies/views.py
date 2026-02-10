@@ -1,8 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.db.models import Q
-from leads.models import Company
-from leads.forms import CompanyForm
+from leads.models import Company, CompanyNote
+from leads.forms import CompanyForm, CompanyNoteForm
 from leads.enrichment import enrich_company
 import os
 
@@ -39,6 +39,70 @@ def company_detail(request, pk):
     """View to see company details (read-only)"""
     company = get_object_or_404(Company, domain=pk)
     return render(request, 'companies/company_detail.html', {'company': company})
+
+
+def company_notes(request, pk):
+    """List and create notes for a company."""
+    company = get_object_or_404(Company, domain=pk)
+    notes = CompanyNote.objects.filter(company=company).order_by('-created_at')
+
+    if request.method == 'POST':
+        form = CompanyNoteForm(request.POST)
+        if form.is_valid():
+            note = form.save(commit=False)
+            note.company = company
+            note.save()
+            messages.success(request, 'Note added successfully.')
+            return redirect('companies:company_notes', pk=company.domain)
+    else:
+        form = CompanyNoteForm()
+
+    context = {
+        'company': company,
+        'notes': notes,
+        'form': form,
+    }
+    return render(request, 'companies/company_notes.html', context)
+
+
+def company_note_update(request, pk, note_id):
+    """Edit a note for a company."""
+    company = get_object_or_404(Company, domain=pk)
+    note = get_object_or_404(CompanyNote, id=note_id, company=company)
+
+    if request.method == 'POST':
+        form = CompanyNoteForm(request.POST, instance=note)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Note updated successfully.')
+            return redirect('companies:company_notes', pk=company.domain)
+    else:
+        form = CompanyNoteForm(instance=note)
+
+    context = {
+        'company': company,
+        'note': note,
+        'form': form,
+        'title': 'Edit Note',
+    }
+    return render(request, 'companies/company_note_form.html', context)
+
+
+def company_note_delete(request, pk, note_id):
+    """Delete a note for a company."""
+    company = get_object_or_404(Company, domain=pk)
+    note = get_object_or_404(CompanyNote, id=note_id, company=company)
+
+    if request.method == 'POST':
+        note.delete()
+        messages.success(request, 'Note deleted successfully.')
+        return redirect('companies:company_notes', pk=company.domain)
+
+    context = {
+        'company': company,
+        'note': note,
+    }
+    return render(request, 'companies/company_note_confirm_delete.html', context)
 
 
 def company_create(request):
