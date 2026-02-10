@@ -1,0 +1,13 @@
+<service>
+  <id>crm-dashboard</id>
+  <name>CRM Dashboard</name>
+  <description>H.F Capital CRM Django app (Waitress)</description>
+  <executable>C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe</executable>
+  <arguments>-NoProfile -ExecutionPolicy Bypass -File "C:\serve\H.F-Capital-CRM\start.ps1"</arguments>
+  <workingdirectory>C:\serve\H.F-Capital-CRM</workingdirectory>
+  <logpath>C:\serve\H.F-Capital-CRM\logs</logpath>
+  <log mode="roll-by-size">
+    <sizeThreshold>10240</sizeThreshold>
+    <keepFiles>8</keepFiles>
+  </log>
+</service>
