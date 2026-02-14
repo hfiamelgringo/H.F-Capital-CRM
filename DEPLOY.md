@@ -2,6 +2,7 @@
 
 - **nginx:** `c:\nginx`
 - **winsw:** `c:\services`
+- **Django** `c:\serve`
 
 ## 1. Prepare app (conda)
 
