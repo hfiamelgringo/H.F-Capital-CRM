@@ -15,5 +15,7 @@
 - [ ] Create way to bulk enrich leads from dashboard
 - [ ] In enrichment: derive first/last name from email if not available
 - [ ] Domain column: link to company's external website
-- [ ] Add tabs to company table
+- [ ] Add tabs to company table ref: https://fomantic-ui.com/modules/tab.html#/examples
 - [ ] Add associated leads to company table
+- [ ] Create database backup system
+- [ ] Move to production database (PostgreSQL) instead of SQLite
