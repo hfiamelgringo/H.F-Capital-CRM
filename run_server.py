@@ -8,6 +8,10 @@ _log_path = os.environ.get("RUN_SERVER_LOG")
 if _log_path:
     try:
         _log = open(_log_path, "a", encoding="utf-8")
+        _fd = _log.fileno()
+        # Replace fd 1 and 2 so all process output (including Waitress C-level) uses our UTF-8 file
+        os.dup2(_fd, 1)
+        os.dup2(_fd, 2)
         sys.stdout = sys.stderr = _log
     except OSError:
         pass
