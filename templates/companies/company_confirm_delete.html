@@ -15,7 +15,7 @@
         <tbody>
             <tr><td>Company</td><td>{{ company.company_name|default:company.domain }}</td></tr>
             <tr><td>Domain</td><td>{{ company.domain }}</td></tr>
-            <tr><td>Associated Leads</td><td>{{ company.lead_set.count }}</td></tr>
+            <tr><td>Associated Leads</td><td>{{ company.leads.count }}</td></tr>
         </tbody>
     </table>
 

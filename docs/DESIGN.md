@@ -46,6 +46,14 @@ Both loaded from Google Fonts in `base.html`.
 
 Use these consistently for new pages and components so the product stays on-brand. The accent color is used for table headers and alternating row backgrounds.
 
+---
+
+## UI approach
+
+**Flat, minimal Fomantic UI** — We use Fomantic UI as the base with light customization. The UI is flat: no shadows, no raised segments, no celled tables. Buttons use the `basic` variant (outlined, not filled). Layout is minimal: search, KPIs, and tables sit directly in the page without extra segment wrappers. Visual hierarchy comes from borders, spacing, and the light blue accent (`var(--light-blue)`) on table headers and alternating rows. Status labels use basic (outlined) styles to stay readable without drawing too much attention. Primary list items (email, name, company name) are links to detail pages with a "Show details" tooltip.
+
+---
+
 ## Other docs
 
 - [Project overview](PROJECT_OVERVIEW.md)

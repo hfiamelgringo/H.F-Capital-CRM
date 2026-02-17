@@ -5,90 +5,79 @@
 {% block extra_css %}{% endblock %}
 
 {% block content %}
-<div class="ui segment">
-    <h2 class="ui header">Company Details</h2>
-    <div class="sub header">{{ company.company_name|default:company.domain }}</div>
+<div class="ui stackable grid">
+    <div class="twelve wide column">
+        <h2 class="ui header">Company Details</h2>
+        <div class="sub header">{{ company.company_name|default:company.domain }}</div>
+    </div>
+    <div class="four wide column right aligned">
+        <a href="{% url 'companies:company_list' %}" class="ui basic button">Back to List</a>
+        <a href="{% url 'companies:company_notes' company.domain %}" class="ui basic button"><i class="sticky note outline icon"></i> Notes</a>
+        <a href="{% url 'companies:company_update' company.domain %}" class="ui basic button"><i class="edit icon"></i> Edit Company</a>
+        <a href="{% url 'companies:company_delete' company.domain %}" class="ui red basic button"><i class="trash alternate outline icon"></i> Delete Company</a>
+    </div>
 </div>
 
-<div class="ui segment">
-    <h3 class="ui header">Basic Information</h3>
-    <table class="ui definition table">
-        <tbody>
-            <tr><td>Domain</td><td><a href="http://{{ company.domain }}" target="_blank">{{ company.domain }}</a></td></tr>
-            <tr><td>Company Name</td><td>{{ company.company_name|default:"Not specified" }}</td></tr>
-            <tr><td>Industry</td><td>{{ company.industry|default:"Not specified" }}</td></tr>
-            <tr><td>Company Size</td><td>{% if company.company_size %}{{ company.company_size }} employees{% else %}Not specified{% endif %}</td></tr>
-            <tr><td>HQ Country</td><td>{{ company.hq_country|default:"Not specified" }}</td></tr>
-            <tr><td>Organization Type</td><td>{{ company.org_type|default:"Not specified" }}</td></tr>
-            <tr><td>Tech Stack</td><td>{{ company.tech_stack|default:"Not specified" }}</td></tr>
-            <tr><td>Domain Confidence</td><td>{{ company.domain_confidence_score|default:"Not specified" }}</td></tr>
-        </tbody>
-    </table>
-</div>
+<h3 class="ui header">Basic Information</h3>
+<table class="ui definition table">
+    <tbody>
+        <tr><td>Domain</td><td><a href="http://{{ company.domain }}" target="_blank">{{ company.domain }}</a></td></tr>
+        <tr><td>Company Name</td><td>{{ company.company_name|default:"Not specified" }}</td></tr>
+        <tr><td>Industry</td><td>{{ company.industry|default:"Not specified" }}</td></tr>
+        <tr><td>Company Size</td><td>{% if company.company_size %}{{ company.company_size }} employees{% else %}Not specified{% endif %}</td></tr>
+        <tr><td>HQ Country</td><td>{{ company.hq_country|default:"Not specified" }}</td></tr>
+        <tr><td>Organization Type</td><td>{{ company.org_type|default:"Not specified" }}</td></tr>
+        <tr><td>Tech Stack</td><td>{{ company.tech_stack|default:"Not specified" }}</td></tr>
+        <tr><td>Domain Confidence</td><td>{{ company.domain_confidence_score|default:"Not specified" }}</td></tr>
+    </tbody>
+</table>
 
-<div class="ui segment">
-    <h3 class="ui header">Address</h3>
-    <table class="ui definition table">
-        <tbody>
-            <tr><td>Street</td><td>{{ company.street|default:"Not specified" }}</td></tr>
-            <tr><td>City</td><td>{{ company.city|default:"Not specified" }}</td></tr>
-            <tr><td>State</td><td>{{ company.state|default:"Not specified" }}</td></tr>
-            <tr><td>Postal Code</td><td>{{ company.postal_code|default:"Not specified" }}</td></tr>
-            <tr><td>Country</td><td>{{ company.country|default:"Not specified" }}</td></tr>
-        </tbody>
-    </table>
-</div>
+<h3 class="ui header">Address</h3>
+<table class="ui definition table">
+    <tbody>
+        <tr><td>Street</td><td>{{ company.street|default:"Not specified" }}</td></tr>
+        <tr><td>City</td><td>{{ company.city|default:"Not specified" }}</td></tr>
+        <tr><td>State</td><td>{{ company.state|default:"Not specified" }}</td></tr>
+        <tr><td>Postal Code</td><td>{{ company.postal_code|default:"Not specified" }}</td></tr>
+        <tr><td>Country</td><td>{{ company.country|default:"Not specified" }}</td></tr>
+    </tbody>
+</table>
 
-<div class="ui segment">
-    <h3 class="ui header">Contact & Social</h3>
-    <table class="ui definition table">
-        <tbody>
-            <tr><td>Phone</td><td>{{ company.work_phone|default:"Not specified" }}</td></tr>
-            <tr><td>Website</td><td>{% if company.work_website %}<a href="{{ company.work_website }}" target="_blank">{{ company.work_website }}</a>{% else %}Not specified{% endif %}</td></tr>
-            <tr><td>LinkedIn</td><td>{% if company.linkedin %}<a href="{{ company.linkedin }}" target="_blank">{{ company.linkedin }}</a>{% else %}Not specified{% endif %}</td></tr>
-            <tr><td>Facebook</td><td>{% if company.facebook %}<a href="{{ company.facebook }}" target="_blank">{{ company.facebook }}</a>{% else %}Not specified{% endif %}</td></tr>
-        </tbody>
-    </table>
-</div>
+<h3 class="ui header">Contact & Social</h3>
+<table class="ui definition table">
+    <tbody>
+        <tr><td>Phone</td><td>{{ company.work_phone|default:"Not specified" }}</td></tr>
+        <tr><td>Website</td><td>{% if company.work_website %}<a href="{{ company.work_website }}" target="_blank">{{ company.work_website }}</a>{% else %}Not specified{% endif %}</td></tr>
+        <tr><td>LinkedIn</td><td>{% if company.linkedin %}<a href="{{ company.linkedin }}" target="_blank">{{ company.linkedin }}</a>{% else %}Not specified{% endif %}</td></tr>
+        <tr><td>Facebook</td><td>{% if company.facebook %}<a href="{{ company.facebook }}" target="_blank">{{ company.facebook }}</a>{% else %}Not specified{% endif %}</td></tr>
+    </tbody>
+</table>
 
-<div class="ui segment">
-    <h3 class="ui header">CRM</h3>
-    <table class="ui definition table">
-        <tbody>
-            <tr><td>Owner</td><td>{{ company.owned_by|default:"Not assigned" }}</td></tr>
-            <tr><td>Contact Type</td><td>{{ company.contact_type|default:"Not specified" }}</td></tr>
-            <tr><td>Tags</td><td>{{ company.tags|default:"Not specified" }}</td></tr>
-            <tr><td>Last Contacted</td><td>{% if company.last_contacted %}{{ company.last_contacted|date:"d/m/Y H:i" }}{% else %}Not contacted{% endif %}</td></tr>
-        </tbody>
-    </table>
-</div>
+<h3 class="ui header">CRM</h3>
+<table class="ui definition table">
+    <tbody>
+        <tr><td>Owner</td><td>{{ company.owned_by|default:"Not assigned" }}</td></tr>
+        <tr><td>Contact Type</td><td>{{ company.contact_type|default:"Not specified" }}</td></tr>
+        <tr><td>Tags</td><td>{{ company.tags|default:"Not specified" }}</td></tr>
+        <tr><td>Last Contacted</td><td>{% if company.last_contacted %}{{ company.last_contacted|date:"d/m/Y H:i" }}{% else %}Not contacted{% endif %}</td></tr>
+    </tbody>
+</table>
 
-<div class="ui segment">
-    <h3 class="ui header">Funding (PDL)</h3>
-    <table class="ui definition table">
-        <tbody>
-            <tr><td>Total Funding</td><td>{% if company.pdl_total_funding_raised %}${{ company.pdl_total_funding_raised }}{% else %}Not available{% endif %}</td></tr>
-            <tr><td>Latest Funding Stage</td><td>{{ company.pdl_latest_funding_stage|default:"Not available" }}</td></tr>
-            <tr><td>Last Funding Date</td><td>{% if company.pdl_last_funding_date %}{{ company.pdl_last_funding_date|date:"d/m/Y" }}{% else %}Not available{% endif %}</td></tr>
-            <tr><td>Funding Rounds</td><td>{{ company.pdl_number_funding_rounds|default:"Not available" }}</td></tr>
-        </tbody>
-    </table>
-</div>
+<h3 class="ui header">Funding (PDL)</h3>
+<table class="ui definition table">
+    <tbody>
+        <tr><td>Total Funding</td><td>{% if company.pdl_total_funding_raised %}${{ company.pdl_total_funding_raised }}{% else %}Not available{% endif %}</td></tr>
+        <tr><td>Latest Funding Stage</td><td>{{ company.pdl_latest_funding_stage|default:"Not available" }}</td></tr>
+        <tr><td>Last Funding Date</td><td>{% if company.pdl_last_funding_date %}{{ company.pdl_last_funding_date|date:"d/m/Y" }}{% else %}Not available{% endif %}</td></tr>
+        <tr><td>Funding Rounds</td><td>{{ company.pdl_number_funding_rounds|default:"Not available" }}</td></tr>
+    </tbody>
+</table>
 
-<div class="ui segment">
-    <h3 class="ui header">System Dates</h3>
-    <table class="ui definition table">
-        <tbody>
-            <tr><td>Created</td><td>{{ company.created_at|date:"d/m/Y H:i" }}</td></tr>
-            <tr><td>Last Updated</td><td>{{ company.updated_at|date:"d/m/Y H:i" }}</td></tr>
-        </tbody>
-    </table>
-</div>
-
-<div class="ui segment">
-    <a href="{% url 'companies:company_list' %}" class="ui button">Back to List</a>
-    <a href="{% url 'companies:company_notes' company.domain %}" class="ui button">Notes</a>
-    <a href="{% url 'companies:company_update' company.domain %}" class="ui primary button">Edit Company</a>
-    <a href="{% url 'companies:company_delete' company.domain %}" class="ui red button">Delete Company</a>
-</div>
+<h3 class="ui header">System Dates</h3>
+<table class="ui definition table">
+    <tbody>
+        <tr><td>Created</td><td>{{ company.created_at|date:"d/m/Y H:i" }}</td></tr>
+        <tr><td>Last Updated</td><td>{{ company.updated_at|date:"d/m/Y H:i" }}</td></tr>
+    </tbody>
+</table>
 {% endblock %}

@@ -12,6 +12,11 @@ def lead_list(request):
     """View to list all leads"""
     leads = Lead.objects.select_related('company').prefetch_related('tags').all()
     search_query = request.GET.get('search', '').strip()
+    company_domain = request.GET.get('company', '').strip()
+    
+    # Filter by company domain if provided
+    if company_domain:
+        leads = leads.filter(company__domain=company_domain)
     
     # Filter by search query if provided
     if search_query:
@@ -31,12 +36,16 @@ def lead_list(request):
         avg_score = '--'
     
     all_tags = LeadTag.objects.all().order_by('name')
+    filter_company = None
+    if company_domain:
+        filter_company = Company.objects.filter(domain=company_domain).first()
 
     return render(request, 'leads/lead_list.html', {
         'leads': leads,
         'all_tags': all_tags,
         'search_query': search_query,
         'avg_score': avg_score,
+        'filter_company': filter_company,
     })
 
 

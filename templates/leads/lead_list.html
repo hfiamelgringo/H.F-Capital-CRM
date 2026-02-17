@@ -18,6 +18,9 @@
 <div class="ui stackable grid">
     <div class="twelve wide column">
         <h2 class="ui header">Lead Management</h2>
+        {% if filter_company %}
+        <div class="sub header">Leads for <a href="{% url 'companies:company_detail' filter_company.domain %}">{{ filter_company.company_name|default:filter_company.domain }}</a> <a href="{% url 'leads:lead_list' %}" class="ui basic mini button">Show all</a></div>
+        {% endif %}
     </div>
     <div class="four wide column right aligned">
         <form method="post" action="{% url 'leads:recalculate_scores' %}" style="display: inline;">
@@ -34,13 +37,14 @@
 </div>
 
 <form method="get" action="{% url 'leads:lead_list' %}" class="ui form">
+    {% if filter_company %}<input type="hidden" name="company" value="{{ filter_company.domain }}">{% endif %}
     <div class="field">
         <div class="ui fluid input">
             <input type="text" name="search" value="{{ search_query }}" placeholder="Search leads by name, email, company, or tag...">
         </div>
     </div>
     <button type="submit" class="ui basic button">Search</button>
-    {% if search_query %}
+    {% if search_query or filter_company %}
     <a href="{% url 'leads:lead_list' %}" class="ui basic button">Clear</a>
     {% endif %}
 </form>
@@ -102,7 +106,7 @@
                         <td><input type="checkbox" class="lead-checkbox" name="selected_leads" value="{{ lead.pk }}"></td>
                         <td><a href="{% url 'leads:lead_detail' lead.email %}" title="Show details">{{ lead.email }}</a></td>
                         <td><a href="{% url 'leads:lead_detail' lead.email %}" title="Show details">{{ lead.pdl_first_name }} {{ lead.pdl_last_name }}</a></td>
-                        <td>{{ lead.company.company_name|default:lead.company.domain }}</td>
+                        <td>{% if lead.company %}<a href="{% url 'companies:company_detail' lead.company.domain %}" title="Show details">{{ lead.company.company_name|default:lead.company.domain }}</a>{% else %}-{% endif %}</td>
                         <td><strong>{{ lead.lead_score }}</strong></td>
                         <td>
                             {% if lead.lead_stage %}
@@ -208,5 +212,6 @@
             });
         });
     })();
+
 </script>
 {% endblock %}

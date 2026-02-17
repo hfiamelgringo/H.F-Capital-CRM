@@ -36,7 +36,7 @@
     {% endif %}
 </form>
 
-<div class="ui three statistics">
+<div class="ui three small statistics">
         <div class="statistic">
             <div class="value">{{ total_companies }}</div>
             <div class="label">Total Companies</div>
@@ -73,12 +73,12 @@
                 <td>{{ company.company_size|default:"-" }}</td>
                 <td>
                     {% if company.linkedin %}
-                        <span class="ui green label">Yes</span>
+                    <a href="{{ company.linkedin }}" target="_blank" rel="noopener" title="LinkedIn"><i class="linkedin large grey icon"></i></a>
                     {% else %}
-                        <span class="ui yellow label">No</span>
+                    -
                     {% endif %}
                 </td>
-                <td>{{ company.lead_set.count }}</td>
+                <td><a href="{% url 'leads:lead_list' %}?company={{ company.domain }}" title="View leads for {{ company.company_name|default:company.domain }}">{{ company.leads.count }} lead{{ company.leads.count|pluralize }}</a></td>
                 <td>
                     <div class="ui small icon buttons">
                         <a href="{% url 'companies:company_update' company.domain %}" class="ui basic icon button" title="Edit"><i class="edit icon"></i></a>

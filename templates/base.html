@@ -33,6 +33,16 @@
         .ui.table tbody tr:nth-child(even) {
             background-color: var(--light-blue) !important;
         }
+        .ui.definition.table td:first-child {
+            background-color: var(--light-blue) !important;
+        }
+        footer {
+            margin-top: 3rem;
+            height: 4rem;
+        }
+        .ui.modal > .actions {
+            background-color: var(--light-blue) !important;
+        }
     </style>
     {% block extra_css %}{% endblock %}
 </head>
@@ -53,6 +63,8 @@
     <div class="ui main container">
         {% block content %}{% endblock %}
     </div>
+
+    <footer></footer>
     
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.9.2/dist/semantic.min.js"></script>
