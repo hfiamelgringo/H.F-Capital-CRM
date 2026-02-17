@@ -31,7 +31,9 @@ SECRET_KEY = 'django-insecure-r*3twr8uzps1qbbhkjva7ml7wtn&#g_&l)y$v0dp((w0t*-t=^
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG=True on dev (DJANGO_PRODUCTION unset or "False"). start.ps1 sets DJANGO_PRODUCTION="True" on the server so DEBUG=False. To debug on server, comment that out in start.ps1 (see DEPLOY.md).
-DEBUG = os.environ.get("DJANGO_PRODUCTION", "").strip().lower() != "true"
+# Set DJANGO_DEBUG=1 to force DEBUG=True (e.g. when running as service and env is wrong).
+_debug_env = os.environ.get("DJANGO_DEBUG", "").strip().lower()
+DEBUG = _debug_env in ("1", "true", "yes") or os.environ.get("DJANGO_PRODUCTION", "").strip().lower() != "true"
 
 ALLOWED_HOSTS = ['hf.capital', 'localhost', '127.0.0.1']
 

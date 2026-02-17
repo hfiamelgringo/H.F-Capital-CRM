@@ -4,7 +4,7 @@ $logDir = "C:\serve\H.F-Capital-CRM\logs"
 $logFile = "$logDir\dashboard-service.log"
 New-Item -ItemType Directory -Force -Path $logDir | Out-Null
 
-function Log { param($msg) "$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') $msg" | Out-File $logFile -Append }
+function Log { param($msg) "$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') $msg" | Out-File $logFile -Append -Encoding utf8 }
 Log "=== Start ==="
 Log "Running as: $env:USERNAME ($env:USERPROFILE)"
 
@@ -32,6 +32,8 @@ Log "Python: $CondaPython"
 $env:DJANGO_SCRIPT_NAME = "/dashboard"
 # Server mode: turns off Django DEBUG. To turn DEBUG on on the server, comment out next line and restart service (see DEPLOY.md).
 $env:DJANGO_PRODUCTION = "True"
+# Force debug page in browser (set to "1" when debugging 500s)
+$env:DJANGO_DEBUG = "0"
 # Avoid OSError on flush when run as service (no console); Python redirects internally
 $env:RUN_SERVER_LOG = $logFile
 Set-Location "C:\serve\H.F-Capital-CRM"
